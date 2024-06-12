@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rails-app # Имя деплоймента.
+spec:
+  replicas: 4 # Количество реплик (подов), которые будут запущены.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge: 25%
+       maxUnavailable: 50%
+  selector:
+    matchLabels:
+      app: rails-app # Метка, используемая для выбора подов, которые будут управляться этим деплойментом.
+  template:
+    metadata:
+      labels:
+        app: rails-app # Метка, присваиваемая каждому создаваемому поду.
+    spec:
+      containers:
+        - name: app-container # Имя контейнера в поде
+          image: ${IMAGE}
+          ports:
+            - containerPort: 3000
+          command: ["bundle", "exec", "rackup"]
+          args: ["--host", "0.0.0.0", "--port", "3000"]
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "200Mi"
